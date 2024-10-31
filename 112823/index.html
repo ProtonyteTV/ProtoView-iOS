@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <title>ProtoView</title>
+</head>
+<body>
+<!-- Title Screen -->
+<div class="full-screen" id="title-screen">
+    <h1>ProtoView</h1>
+    <h3>Proof of concept</h3>
+    <p>Tap to Enter</p>
+    <a href="#scrapbook" class="button">ENTER</a>
+    <div class="footer">Made with love from Kyle Genesis Fernando</div>
+</div>
+
+<!-- Scrapbook Section -->
+<div class="container" id="scrapbook" style="display: none;">
+    <h1 style="font-size: 30px"> ProtoView</h1>
+    
+    <div class="separator"></div>
+
+    <div class="add-entry-container">
+        <h4 style="text-align: center; font-size: 25px;">Add Entry</h4>
+        
+        <textarea id="noteInput" placeholder="Write your notes here..." class="add-entry-textarea"></textarea>
+        
+        <div class="image-upload-container">
+            <!-- Trigger the image upload function in Swift -->
+            <button onclick="requestImage()" class="image-upload-button">Upload Image</button>
+            
+            <!-- Image preview section -->
+            <img id="imagePreview" style="display: none; max-width: 100%; margin-top: 10px;" alt="Selected Image Preview">
+                </div>
+        
+        <button id="addButton" class="add-entry-button">Add Entry</button>
+        <button id="jiggleButton" class="add-entry-button red-button">Delete an entry</button>
+    </div>
+    <div class='separator'></div>
+    <h2>Your own personal notes</h2>
+    <div id="entriesContainer"></div>
+    <div class='separator'></div>
+    <div class="footer"><p>ProtoView<br>ProtonyteTV 2024</p></div>
+</div>
+
+<script>
+    let db;
+    let isJiggling = false;
+    
+    // Open or create the IndexedDB database
+    function openDatabase() {
+        const request = indexedDB.open('scrapbookDB', 1);
+        
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
+            objectStore.createIndex('note', 'note', { unique: false });
+            objectStore.createIndex('image', 'image', { unique: false });
+        };
+        
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadEntries();
+        };
+        
+        request.onerror = function(event) {
+            console.error('Error opening database:', event);
+        };
+    }
+
+// Save an entry with a note and optional image
+function saveEntry(note, imageData) {
+    const transaction = db.transaction(['entries'], 'readwrite');
+    const objectStore = transaction.objectStore('entries');
+    const newEntry = { note: note, image: imageData || null };
+    
+    objectStore.add(newEntry).onsuccess = loadEntries;
+}
+
+// Load and display entries
+function loadEntries() {
+    const entriesContainer = document.getElementById('entriesContainer');
+    entriesContainer.innerHTML = '';
+    
+    const transaction = db.transaction(['entries'], 'readonly');
+    const objectStore = transaction.objectStore('entries');
+    const request = objectStore.getAll();
+    
+    request.onsuccess = function(event) {
+        const entries = event.target.result;
+        entries.forEach(entry => {
+                        const entryDiv = document.createElement('div');
+                        entryDiv.className = 'entry';
+                        
+                        // Render note and image
+                        entryDiv.innerHTML = `
+                        <p>${entry.note}</p>
+                        ${entry.image ? `<img src="${entry.image}" alt="Entry Image" style="max-width:100%;" />` : ''}
+                        ${isJiggling ? `<button class="delete-entry-button" onclick="deleteEntry(${entry.id})">Delete</button>` : ''}
+                        `;
+                        entriesContainer.appendChild(entryDiv);
+                        });
+    };
+}
+
+// Delete an entry by ID
+function deleteEntry(id) {
+    const transaction = db.transaction(['entries'], 'readwrite');
+    const objectStore = transaction.objectStore('entries');
+    objectStore.delete(id).onsuccess = loadEntries;
+}
+
+// Request an image from the native app (iOS)
+function requestImage() {
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestImage) {
+        window.webkit.messageHandlers.requestImage.postMessage(null);
+    }
+}
+
+// Function to handle the image upload from iOS
+function addImageToEntry(imageData) {
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.src = imageData;
+    imagePreview.style.display = 'block';
+    imagePreview.dataset.imageData = imageData; // Store image data in dataset for later use
+}
+
+// Initialize the app once content is loaded
+document.addEventListener('DOMContentLoaded', function() {
+                          openDatabase();
+                          
+                          // Add entry button functionality
+                          document.getElementById('addButton').onclick = function() {
+                          const noteInput = document.getElementById('noteInput');
+                          const imagePreview = document.getElementById('imagePreview');
+                          
+                          if (noteInput.value.trim() === "") {
+                          alert("Please write a note.");
+                          return;
+                          }
+                          
+                          // Save entry with note and image data (base64 string)
+                          saveEntry(noteInput.value, imagePreview.dataset.imageData || null);
+                          
+                          // Clear input fields after saving
+                          noteInput.value = '';
+                          imagePreview.style.display = 'none';
+                          imagePreview.removeAttribute('src');
+                          delete imagePreview.dataset.imageData;
+                          };
+                          
+                          // Toggle jiggle mode for deleting entries
+                          document.getElementById('jiggleButton').onclick = function() {
+                          isJiggling = !isJiggling;
+                          loadEntries();
+                          };
+                          });
+                          
+</script>
+<script>
+    // Transition from title screen to scrapbook
+    document.querySelector('.button').onclick = function() {
+        const titleScreen = document.getElementById('title-screen');
+        titleScreen.classList.add('hidden');
+        
+        setTimeout(() => {
+                   titleScreen.style.display = 'none';
+                   document.getElementById('scrapbook').style.display = 'block';
+                   loadEntries();
+                   }, 500);
+    };
+    </script>
+
+<script src="js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
