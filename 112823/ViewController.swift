@@ -68,7 +68,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, UIIm
         // Define the notification content
         let content = UNMutableNotificationContent()
         content.title = "112823"
-        content.body = "Ano love walang bati bati motmot naten ngayon!."
+        content.body = "mahal happy monthsaryyyy iloveyou always mwuaah!"
         content.sound = .default
         
         // Set the trigger date to the 28th at 6:30 am
@@ -91,7 +91,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, UIIm
     func scheduleDailyNotification() {
         let content = UNMutableNotificationContent()
         content.title = "112823"
-        content.body = "Love Wala ba tayong pa notes for today?"
+        content.body = "mahal 8pm na gusto ko lang iremind ka na mahal na mahal kita palagi mwuaaaah!"
         content.sound = .default
         
         // Set the time components for 8:00 PM

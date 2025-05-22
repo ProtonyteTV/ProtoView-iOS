@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,7 +43,7 @@
     <h2>Your own personal notes</h2>
     <div id="entriesContainer"></div>
     <div class='separator'></div>
-    <div class="footer"><p>ProtoView<br>ProtonyteTV 2024</p></div>
+    <div class="footer"><p>ProtoView<br>ProtonyteTV 2025</p></div>
 </div>
 
 <script>
@@ -75,36 +75,44 @@
 function saveEntry(note, imageData) {
     const transaction = db.transaction(['entries'], 'readwrite');
     const objectStore = transaction.objectStore('entries');
-    const newEntry = { note: note, image: imageData || null };
-    
+    const newEntry = {
+        note: note,
+        image: imageData || null,
+        timestamp: new Date().toISOString()  // 👈 this line is key
+    };
+
     objectStore.add(newEntry).onsuccess = loadEntries;
 }
+
 
 // Load and display entries
 function loadEntries() {
     const entriesContainer = document.getElementById('entriesContainer');
     entriesContainer.innerHTML = '';
-    
+
     const transaction = db.transaction(['entries'], 'readonly');
     const objectStore = transaction.objectStore('entries');
     const request = objectStore.getAll();
-    
+
     request.onsuccess = function(event) {
         const entries = event.target.result;
         entries.forEach(entry => {
-                        const entryDiv = document.createElement('div');
-                        entryDiv.className = 'entry';
-                        
-                        // Render note and image
-                        entryDiv.innerHTML = `
-                        <p>${entry.note}</p>
-                        ${entry.image ? `<img src="${entry.image}" alt="Entry Image" style="max-width:100%;" />` : ''}
-                        ${isJiggling ? `<button class="delete-entry-button" onclick="deleteEntry(${entry.id})">Delete</button>` : ''}
-                        `;
-                        entriesContainer.appendChild(entryDiv);
-                        });
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'entry';
+
+            const date = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '';
+
+            entryDiv.innerHTML = `
+                <p style="font-size: 14px; color: #aaa;">${date}</p>
+                <p>${entry.note}</p>
+                ${entry.image ? `<img src="${entry.image}" alt="Entry Image" />` : ''}
+                ${isJiggling ? `<button class="delete-entry-button" onclick="deleteEntry(${entry.id})">Delete</button>` : ''}
+            `;
+            entriesContainer.appendChild(entryDiv);
+        });
     };
 }
+
 
 // Delete an entry by ID
 function deleteEntry(id) {
@@ -173,6 +181,93 @@ document.addEventListener('DOMContentLoaded', function() {
                    }, 500);
     };
     </script>
+    
+    <script>
+   const glowButton = document.getElementById('glowButton');
+
+// Function to generate random color for the glow
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+// Function to set random glow effect
+function setRandomGlow() {
+    const randomColor = getRandomColor();
+    glowButton.classList.add('glow');
+    glowButton.style.boxShadow = `0 0 30px ${randomColor}, 0 0 60px ${randomColor}`;
+}
+
+// Check localStorage to see if glow should be disabled
+if (!localStorage.getItem('glowDisabled')) {
+    // Set initial glow
+    setRandomGlow();
+
+    // Update the glow color every 3 seconds
+    var glowInterval = setInterval(setRandomGlow, 3000);
+}
+
+// Event listener to remove glow effect on button click
+glowButton.addEventListener('click', () => {
+    // Remove the glow effect
+    glowButton.classList.remove('glow');
+    glowButton.style.boxShadow = 'none';
+
+    // Stop the interval for color changing
+    clearInterval(glowInterval);
+
+    // Save state to localStorage to prevent glow on future loads
+    localStorage.setItem('glowDisabled', 'true');
+});
+    </script>
+    
+     <script>
+    document.getElementById('showMoreBtn').addEventListener('click', function () {
+        var moreContent = document.getElementById('moreContent');
+        var button = document.getElementById('showMoreBtn');
+        
+        if (moreContent.style.display === 'none') {
+            moreContent.style.display = 'block';
+            button.textContent = 'Show Less';
+        } else {
+            moreContent.style.display = 'none';
+            button.textContent = 'Show More';
+        }
+    });
+</script>
+    
+    <script>
+    document.getElementById('showMoreBtn2').addEventListener('click', function () {
+        var moreContent = document.getElementById('moreContent2');
+        var button = document.getElementById('showMoreBtn2');
+        
+        if (moreContent.style.display === 'none') {
+            moreContent.style.display = 'block';
+            button.textContent = 'Show Less';
+        } else {
+            moreContent.style.display = 'none';
+            button.textContent = 'Show More';
+        }
+    });
+</script>
+    <script>
+    document.getElementById('showMoreBtn3').addEventListener('click', function () {
+        var moreContent = document.getElementById('moreContent3');
+        var button = document.getElementById('showMoreBtn3');
+        
+        if (moreContent.style.display === 'none') {
+            moreContent.style.display = 'block';
+            button.textContent = 'Show Less';
+        } else {
+            moreContent.style.display = 'none';
+            button.textContent = 'Show More';
+        }
+    });
+</script>
 
 <script src="js/bootstrap.bundle.min.js"></script>
 
