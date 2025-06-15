@@ -24,10 +24,10 @@ ProtoView is a fully offline-first personal journaling engine built using lightw
 ### 🔧 Build Details (iOS)
 - Minimum iOS Version: 15.1
 - Deployment Target: iOS 15.1+
-- Language: Swift 5.10+
+- Language: Swift 5.0+
 - Framework: UIKit + WebKit (WKWebView)
-- IDE: Xcode 15+
-- Architectures: ARM64 (iPhone, iPad)
+- IDE: Xcode 13.2.1+
+- Architectures: ARM64 (iPhone)
 
 ---
 
