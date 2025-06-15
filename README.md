@@ -39,7 +39,7 @@ ProtoView Genesis 26.0 marks the full separation of the Android and iOS engines 
 
 # 🛡 Privacy First
 
-ProtoView stores all your data locally on-device. No internet or cloud storage is required. Your personal moments remain entirely private.
+ProtoView stores all your data locally on-device. No internet expect for checking update or cloud storage is required. Your personal moments remain entirely private.
 
 ---
 
